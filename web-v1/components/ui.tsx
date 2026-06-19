@@ -3,6 +3,8 @@ import {
   HTMLAttributes,
   ButtonHTMLAttributes,
   InputHTMLAttributes,
+  SelectHTMLAttributes,
+  TextareaHTMLAttributes,
   forwardRef,
   useEffect,
   useMemo,
@@ -313,5 +315,62 @@ export function Kbd({ children }: { children: ReactNode }) {
     <kbd className="rounded-md border border-[var(--border)] bg-[var(--surface-2)] px-1.5 py-0.5 text-[10px] font-mono text-[var(--muted)]">
       {children}
     </kbd>
+  );
+}
+
+export function Select({
+  className = "",
+  children,
+  ...props
+}: SelectHTMLAttributes<HTMLSelectElement> & { className?: string }) {
+  return (
+    <div className="relative">
+      <select
+        {...props}
+        className={`w-full appearance-none rounded-lg border border-[var(--border)] bg-[var(--surface-2)] px-3 py-2 pr-8 text-sm text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted-2)] hover:border-[var(--border-strong)] focus:border-[var(--accent)]/60 focus:ring-2 focus:ring-[var(--accent)]/25 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+      >
+        {children}
+      </select>
+      <div className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--muted)]">
+        <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.5">
+          <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+export const Textarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<HTMLTextAreaElement>>(
+  function Textarea({ className = "", ...props }, ref) {
+    return (
+      <textarea
+        ref={ref}
+        {...props}
+        className={`w-full resize-y rounded-xl border border-[var(--border)] bg-[var(--surface-2)] px-3 py-2.5 text-sm leading-relaxed text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted-2)] hover:border-[var(--border-strong)] focus:border-[var(--accent)]/60 focus:ring-2 focus:ring-[var(--accent)]/25 ${className}`}
+      />
+    );
+  },
+);
+
+export function MetricTile({
+  label,
+  value,
+  tone = "default",
+}: {
+  label: string;
+  value: ReactNode;
+  tone?: "default" | "success" | "danger" | "accent";
+}) {
+  const toneClass: Record<string, string> = {
+    default: "text-[var(--foreground)]",
+    success: "text-[var(--success)]",
+    danger: "text-[var(--danger)]",
+    accent: "text-[var(--accent-2)]",
+  };
+  return (
+    <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)]/70 px-3 py-2 backdrop-blur-sm">
+      <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">{label}</div>
+      <div className={`mt-0.5 font-mono text-base font-medium tracking-tight ${toneClass[tone]}`}>{value}</div>
+    </div>
   );
 }

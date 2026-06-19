@@ -1,9 +1,8 @@
 "use client";
 
-import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { api, type TradeHistoryItem } from "@/lib/api";
-import { Badge, Button, Card, Input, LiveValue } from "@/components/ui";
+import { Badge, Button, Card, Input, LiveValue, MetricTile, Select } from "@/components/ui";
 import { useTradingWorkspace } from "@/components/workspace/TradingWorkspaceProvider";
 
 type OutcomeFilter = "all" | "win" | "loss" | "breakeven";
@@ -16,8 +15,6 @@ type HistoryFilters = {
 
 const DEFAULT_PAGE_SIZE = 25;
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
-const SELECT_CLASS_NAME =
-  "w-full rounded-lg border border-[var(--border)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition hover:border-[var(--border-strong)] focus:border-[var(--accent)]/60 focus:ring-2 focus:ring-[var(--accent)]/25";
 const DEFAULT_FILTERS: HistoryFilters = {
   symbol: "",
   outcome: "all",
@@ -197,18 +194,17 @@ export default function HistoryPage() {
                 onChange={(event) => setDraftFilters((prev) => ({ ...prev, symbol: event.target.value }))}
                 placeholder="Filter by symbol"
               />
-              <select
+              <Select
                 value={draftFilters.outcome}
                 onChange={(event) =>
                   setDraftFilters((prev) => ({ ...prev, outcome: event.target.value as OutcomeFilter }))
                 }
-                className={SELECT_CLASS_NAME}
               >
                 <option value="all">All results</option>
                 <option value="win">Wins only</option>
                 <option value="loss">Losses only</option>
                 <option value="breakeven">Breakeven only</option>
-              </select>
+              </Select>
               <Input
                 type="date"
                 value={draftFilters.dateFrom}
@@ -219,20 +215,19 @@ export default function HistoryPage() {
                 value={draftFilters.dateTo}
                 onChange={(event) => setDraftFilters((prev) => ({ ...prev, dateTo: event.target.value }))}
               />
-              <select
+              <Select
                 value={String(pageSize)}
                 onChange={(event) => {
                   setPage(1);
                   setPageSize(Number(event.target.value));
                 }}
-                className={SELECT_CLASS_NAME}
               >
                 {PAGE_SIZE_OPTIONS.map((size) => (
                   <option key={size} value={size}>
                     {size} / page
                   </option>
                 ))}
-              </select>
+              </Select>
               <div className="flex flex-wrap gap-2 sm:col-span-2 lg:col-span-3 xl:col-span-6">
                 <Button variant="primary" onClick={applyFilters} loading={loading}>
                   Apply
@@ -374,26 +369,3 @@ export default function HistoryPage() {
   );
 }
 
-function MetricTile({
-  label,
-  value,
-  tone = "default",
-}: {
-  label: string;
-  value: ReactNode;
-  tone?: "default" | "success" | "danger" | "accent";
-}) {
-  const toneClass: Record<string, string> = {
-    default: "text-[var(--foreground)]",
-    success: "text-[var(--success)]",
-    danger: "text-[var(--danger)]",
-    accent: "text-[var(--accent-2)]",
-  };
-
-  return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)]/70 px-3 py-2 backdrop-blur-sm">
-      <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">{label}</div>
-      <div className={`mt-0.5 font-mono text-base font-medium tracking-tight ${toneClass[tone]}`}>{value}</div>
-    </div>
-  );
-}

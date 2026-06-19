@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { BrandLogo } from "@/components/BrandLogo";
 import { Badge, Dot } from "@/components/ui";
@@ -142,6 +143,7 @@ function isActive(pathname: string, href: string) {
 export function WorkspaceShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { status, apiOnline, accountMode, toasts, dismissToast } = useTradingWorkspace();
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const deskSession = useMultiAgentDeskSessionOptional();
   const page = PAGE_META[pathname] ?? { title: "ThinkTrade", subtitle: "AI trading workspace" };
   const connected = !!status?.connected;
@@ -213,20 +215,51 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
               })}
             </div>
           </nav>
+
+          <div className="shrink-0 border-t border-[var(--border)] px-4 py-4">
+            <div className="flex items-center gap-2.5 rounded-xl border border-[var(--border)] bg-[var(--surface-2)]/60 px-3 py-2.5">
+              <Dot tone={connected ? "success" : "warning"} pulse={connected} />
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-xs font-medium text-[var(--foreground)]">
+                  MT5 {connected ? "connected" : "disconnected"}
+                </div>
+                <div className="truncate text-[11px] text-[var(--muted)]">
+                  {tradingAccountModeShortLabel(accountMode)} account
+                  {apiOnline != null && ` · API ${apiOnline ? "online" : "offline"}`}
+                </div>
+              </div>
+              <div
+                className={`h-1.5 w-1.5 shrink-0 rounded-full ${
+                  apiOnline ? "bg-[var(--success)]" : apiOnline === false ? "bg-[var(--danger)]" : "bg-[var(--muted)]"
+                }`}
+              />
+            </div>
+          </div>
       </aside>
 
       <div className="flex min-h-screen min-w-0 flex-col lg:pl-72">
           <header className="sticky top-0 z-30 border-b border-[var(--border)] bg-[var(--surface)]/95 backdrop-blur-xl">
             <div className="px-4 py-4 sm:px-6">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                <div className="min-w-0">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
-                    ThinkTrade Workspace
+                <div className="flex min-w-0 items-start gap-3">
+                  <button
+                    onClick={() => setMobileNavOpen(true)}
+                    className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface-2)] text-[var(--muted)] transition hover:text-[var(--foreground)] lg:hidden"
+                    aria-label="Open navigation"
+                  >
+                    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M4 6h16M4 12h16M4 18h16" strokeLinecap="round" />
+                    </svg>
+                  </button>
+                  <div className="min-w-0">
+                    <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+                      ThinkTrade Workspace
+                    </div>
+                    <div className="mt-1 text-xl font-semibold tracking-tight text-[var(--foreground)]">
+                      {page.title}
+                    </div>
+                    <div className="mt-1 text-sm text-[var(--muted)]">{page.subtitle}</div>
                   </div>
-                  <div className="mt-1 text-xl font-semibold tracking-tight text-[var(--foreground)]">
-                    {page.title}
-                  </div>
-                  <div className="mt-1 text-sm text-[var(--muted)]">{page.subtitle}</div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge tone={apiOnline ? "success" : apiOnline === false ? "danger" : "default"}>
@@ -279,6 +312,82 @@ export function WorkspaceShell({ children }: { children: React.ReactNode }) {
             </div>
           </footer>
       </div>
+
+      {mobileNavOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setMobileNavOpen(false)}
+          />
+          <aside className="animate-fade-in absolute inset-y-0 left-0 flex h-full w-[min(18rem,85vw)] flex-col overflow-hidden border-r border-[var(--border)] bg-[var(--surface)]/98 backdrop-blur-xl">
+            <div className="flex shrink-0 items-center justify-between border-b border-[var(--border)] px-5 py-4">
+              <div className="flex items-center gap-3">
+                <BrandLogo size={36} />
+                <div>
+                  <h2 className="text-sm font-semibold tracking-tight text-brand-gradient">ThinkTrade</h2>
+                  <p className="text-[11px] text-[var(--muted)]">{tradingAccountModeShortLabel(accountMode)}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setMobileNavOpen(false)}
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface-2)] text-[var(--muted)] transition hover:text-[var(--foreground)]"
+                aria-label="Close navigation"
+              >
+                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+
+            <nav className="min-h-0 flex-1 overflow-y-auto px-3 py-3">
+              <div className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+                Navigation
+              </div>
+              <div className="space-y-0.5">
+                {NAV_ITEMS.map((item) => {
+                  const active = isActive(pathname, item.href);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setMobileNavOpen(false)}
+                      className={`nav-sidebar-link group ${active ? "nav-sidebar-link-active" : ""}`}
+                    >
+                      <span className="nav-sidebar-icon">{item.icon}</span>
+                      <span className="min-w-0">
+                        <span
+                          className={`block text-sm font-medium ${
+                            active ? "text-[var(--foreground)]" : "text-[var(--foreground)]/90"
+                          }`}
+                        >
+                          {item.label}
+                        </span>
+                        <span className="mt-0.5 block text-[11px] leading-snug text-[var(--muted)]">
+                          {item.description}
+                        </span>
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </nav>
+
+            <div className="shrink-0 border-t border-[var(--border)] px-4 py-4">
+              <div className="flex items-center gap-2.5 rounded-xl border border-[var(--border)] bg-[var(--surface-2)]/60 px-3 py-2.5">
+                <Dot tone={connected ? "success" : "warning"} pulse={connected} />
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-xs font-medium text-[var(--foreground)]">
+                    MT5 {connected ? "connected" : "disconnected"}
+                  </div>
+                  <div className="truncate text-[11px] text-[var(--muted)]">
+                    {tradingAccountModeShortLabel(accountMode)} account
+                  </div>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      )}
 
       <ToastStack items={toasts} onDismiss={dismissToast} />
     </div>

@@ -1,9 +1,8 @@
 "use client";
 
-import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { api, type PositionInsightResponse, type ProviderInfo } from "@/lib/api";
-import { Badge, Button, Card, Input, LiveValue } from "@/components/ui";
+import { Badge, Button, Card, Input, LiveValue, MetricTile, Select, Textarea } from "@/components/ui";
 import { runPositionInsightStream } from "@/lib/sse";
 import { useTradingWorkspace } from "@/components/workspace/TradingWorkspaceProvider";
 
@@ -53,8 +52,6 @@ function getProfitTone(profit: number | null): "default" | "success" | "danger" 
 }
 
 const DEFAULT_QUESTION = "What is the current risk on these open positions, and what should I watch right now?";
-const SELECT_CLASS_NAME =
-  "w-full rounded-lg border border-[var(--border)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition hover:border-[var(--border-strong)] focus:border-[var(--accent)]/60 focus:ring-2 focus:ring-[var(--accent)]/25";
 
 export default function PositionsPage() {
   const { status, onError, onInfo } = useTradingWorkspace();
@@ -317,7 +314,7 @@ export default function PositionsPage() {
                 <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">
                   Provider
                 </div>
-                <select
+                <Select
                   value={provider}
                   onChange={(event) => {
                     const nextProvider = event.target.value;
@@ -328,28 +325,26 @@ export default function PositionsPage() {
                       setUseCustomModel(false);
                     }
                   }}
-                  className={SELECT_CLASS_NAME}
                 >
                   {providers.map((item) => (
                     <option key={item.provider} value={item.provider}>
                       {item.provider} {item.configured ? "" : "(key missing)"}
                     </option>
                   ))}
-                </select>
+                </Select>
               </div>
               <div>
                 <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">
                   Model
                 </div>
                 <div className="grid gap-2">
-                  <select
+                  <Select
                     value={useCustomModel ? "custom" : "default"}
                     onChange={(event) => setUseCustomModel(event.target.value === "custom")}
-                    className={SELECT_CLASS_NAME}
                   >
                     <option value="default">Use recommended model</option>
                     <option value="custom">Custom model</option>
-                  </select>
+                  </Select>
                   {useCustomModel ? (
                     <Input
                       value={model}
@@ -383,11 +378,11 @@ export default function PositionsPage() {
             <div className="mb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">
               Your Question
             </div>
-            <textarea
+            <Textarea
               value={question}
               onChange={(event) => setQuestion(event.target.value)}
               placeholder="Ask the AI about your currently open positions..."
-              className="min-h-[116px] w-full rounded-xl border border-[var(--border)] bg-[var(--surface-2)] px-3 py-3 text-sm leading-relaxed text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted-2)] hover:border-[var(--border-strong)] focus:border-[var(--accent)]/60 focus:ring-2 focus:ring-[var(--accent)]/25"
+              className="min-h-[116px]"
             />
           </div>
 
@@ -461,26 +456,3 @@ export default function PositionsPage() {
   );
 }
 
-function MetricTile({
-  label,
-  value,
-  tone = "default",
-}: {
-  label: string;
-  value: ReactNode;
-  tone?: "default" | "success" | "danger" | "accent";
-}) {
-  const toneClass: Record<string, string> = {
-    default: "text-[var(--foreground)]",
-    success: "text-[var(--success)]",
-    danger: "text-[var(--danger)]",
-    accent: "text-[var(--accent-2)]",
-  };
-
-  return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)]/70 px-3 py-2 backdrop-blur-sm">
-      <div className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">{label}</div>
-      <div className={`mt-0.5 font-mono text-base font-medium tracking-tight ${toneClass[tone]}`}>{value}</div>
-    </div>
-  );
-}

@@ -8,7 +8,7 @@ import { isPropFirmRulesActive, propFirmRulesForApi, type PropFirmRules } from "
 import { tradingAccountModeLabel } from "@/lib/tradingAccount";
 import { runCycleStream } from "@/lib/sse";
 import { PropFirmRulesPanel } from "@/components/PropFirmRulesPanel";
-import { Badge, Button, Card, FieldLabel, Input } from "./ui";
+import { Badge, Button, Card, FieldLabel, Input, Textarea } from "./ui";
 
 const PROVIDER_META: Record<
   string,
@@ -448,11 +448,11 @@ export function RunCyclePanel({
       {/* User prompt */}
       <div className="mt-4 flex flex-col gap-1.5">
         <FieldLabel>Extra AI Context (Optional)</FieldLabel>
-        <textarea
+        <Textarea
           value={userPrompt}
           onChange={(e) => setUserPrompt(e.target.value)}
           placeholder="Example: Focus on London session momentum, avoid countertrend setups, and be stricter with risk."
-          className="min-h-[88px] w-full rounded-lg border border-[var(--border)] bg-[var(--surface-2)] px-3 py-2 text-sm text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted)] focus:border-[var(--accent)] focus:ring-2 focus:ring-[color-mix(in_oklab,var(--accent),transparent_72%)]"
+          className="min-h-[88px]"
           maxLength={1200}
         />
         <div className="flex items-center justify-between text-[11px] text-[var(--muted)]">
