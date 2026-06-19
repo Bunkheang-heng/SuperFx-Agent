@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment files (NEVER commit real secrets)
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+
+# SQLite database (local Phase 1 store)
+data/
+*.db
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
