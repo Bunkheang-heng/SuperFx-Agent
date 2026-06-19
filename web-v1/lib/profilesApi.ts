@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "./api";
+import { getApiBaseUrl } from "./api";
 import type { PropFirmRules } from "./propFirm";
 
 async function handle<T>(res: Response): Promise<T> {
@@ -80,12 +80,12 @@ export function setStoredActiveProfileId(id: number | null): void {
 export const profilesApi = {
   async listPropFirmProfiles() {
     return handle<PropFirmProfileListResponse>(
-      await fetch(`${API_BASE_URL}/api/profiles/prop-firm`, { cache: "no-store" }),
+      await fetch(`${getApiBaseUrl()}/api/profiles/prop-firm`, { cache: "no-store" }),
     );
   },
 
   async getActivePropFirmProfile() {
-    const res = await fetch(`${API_BASE_URL}/api/profiles/prop-firm/active`, { cache: "no-store" });
+    const res = await fetch(`${getApiBaseUrl()}/api/profiles/prop-firm/active`, { cache: "no-store" });
     if (res.status === 404) return null;
     return handle<PropFirmProfileRecord>(res);
   },
@@ -97,7 +97,7 @@ export const profilesApi = {
     set_active?: boolean;
   }) {
     return handle<PropFirmProfileRecord>(
-      await fetch(`${API_BASE_URL}/api/profiles/prop-firm`, {
+      await fetch(`${getApiBaseUrl()}/api/profiles/prop-firm`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -115,7 +115,7 @@ export const profilesApi = {
     },
   ) {
     return handle<PropFirmProfileRecord>(
-      await fetch(`${API_BASE_URL}/api/profiles/prop-firm/${id}`, {
+      await fetch(`${getApiBaseUrl()}/api/profiles/prop-firm/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -125,13 +125,13 @@ export const profilesApi = {
 
   async activatePropFirmProfile(id: number) {
     return handle<PropFirmProfileRecord>(
-      await fetch(`${API_BASE_URL}/api/profiles/prop-firm/${id}/activate`, { method: "POST" }),
+      await fetch(`${getApiBaseUrl()}/api/profiles/prop-firm/${id}/activate`, { method: "POST" }),
     );
   },
 
   async deletePropFirmProfile(id: number) {
     return handle<{ success: boolean }>(
-      await fetch(`${API_BASE_URL}/api/profiles/prop-firm/${id}`, { method: "DELETE" }),
+      await fetch(`${getApiBaseUrl()}/api/profiles/prop-firm/${id}`, { method: "DELETE" }),
     );
   },
 };
@@ -152,11 +152,11 @@ export const runsApi = {
     });
     if (symbol) params.set("symbol", symbol);
     return handle<TradingRunListResponse>(
-      await fetch(`${API_BASE_URL}/api/runs?${params.toString()}`, { cache: "no-store" }),
+      await fetch(`${getApiBaseUrl()}/api/runs?${params.toString()}`, { cache: "no-store" }),
     );
   },
 
   async get(runId: number) {
-    return handle<TradingRunDetail>(await fetch(`${API_BASE_URL}/api/runs/${runId}`, { cache: "no-store" }));
+    return handle<TradingRunDetail>(await fetch(`${getApiBaseUrl()}/api/runs/${runId}`, { cache: "no-store" }));
   },
 };

@@ -1,4 +1,4 @@
-import { API_BASE_URL, type RunCycleResult, type TradingMode, type TradingStrategy } from "./api";
+import { getApiBaseUrl, type RunCycleResult, type TradingMode, type TradingStrategy } from "./api";
 import { defaultPropFirmRules, loadPropFirmRules, propFirmRulesForApi, type PropFirmRules } from "./propFirm";
 import { getStoredActiveProfileId } from "./profilesApi";
 import type { TradingAccountMode } from "./tradingAccount";
@@ -19,7 +19,7 @@ function formatStreamHttpError(status: number, text: string): string {
 /** Tell the API to stop the active cycle and release the server run lock. */
 export async function cancelActiveTradingCycle(): Promise<void> {
   try {
-    await fetch(`${API_BASE_URL}/api/multi-agent/cancel`, { method: "POST" });
+    await fetch(`${getApiBaseUrl()}/api/multi-agent/cancel`, { method: "POST" });
   } catch {
     /* ignore network errors on cancel */
   }
@@ -406,7 +406,7 @@ function buildPayload(config: MultiAgentStoredConfig, options?: BuildPayloadOpti
 }
 
 export async function checkAgentHealth(agent: AgentConfig): Promise<AgentHealthCheckResponse> {
-  const res = await fetch(`${API_BASE_URL}/api/multi-agent/health-check`, {
+  const res = await fetch(`${getApiBaseUrl()}/api/multi-agent/health-check`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -427,7 +427,7 @@ export async function runMultiAgentOnce(
   config: MultiAgentStoredConfig,
   deskOptions?: BuildPayloadOptions,
 ): Promise<MultiAgentRunResponse> {
-  const res = await fetch(`${API_BASE_URL}/api/multi-agent/run`, {
+  const res = await fetch(`${getApiBaseUrl()}/api/multi-agent/run`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(buildPayload(config, deskOptions)),
@@ -561,7 +561,7 @@ export function streamAutoTrade(
 
   (async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/multi-agent/auto-trade-stream`, {
+      const res = await fetch(`${getApiBaseUrl()}/api/multi-agent/auto-trade-stream`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "text/event-stream" },
         body: JSON.stringify(buildAutoTradePayload(config, options, deskOptions)),
@@ -715,7 +715,7 @@ export function streamMonitor(
 
   (async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/multi-agent/monitor-stream`, {
+      const res = await fetch(`${getApiBaseUrl()}/api/multi-agent/monitor-stream`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "text/event-stream" },
         body: JSON.stringify(buildMonitorPayload(config, options, deskOptions)),
@@ -840,7 +840,7 @@ export function streamMultiAgent(
 
   (async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/multi-agent/run-stream`, {
+      const res = await fetch(`${getApiBaseUrl()}/api/multi-agent/run-stream`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "text/event-stream" },
         body: JSON.stringify(buildPayload(config, deskOptions)),

@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "./api";
+import { getApiBaseUrl } from "./api";
 
 export type StreamHandlers = {
   onStatus?: (data: string) => void;
@@ -44,7 +44,7 @@ export function runCycleStream(opts: StreamOptions, handlers: StreamHandlers): (
     params.set("prop_firm_profile_id", String(opts.propFirmProfileId));
   }
 
-  const url = `${API_BASE_URL}/api/trading/run-cycle-stream?${params.toString()}`;
+  const url = `${getApiBaseUrl()}/api/trading/run-cycle-stream?${params.toString()}`;
   const source = new EventSource(url);
 
   source.addEventListener("status", (e) => handlers.onStatus?.((e as MessageEvent).data));
@@ -76,7 +76,7 @@ export function runPositionInsightStream(
   });
   if (opts.model) params.set("model", opts.model);
 
-  const url = `${API_BASE_URL}/api/trading/positions-insight-stream?${params.toString()}`;
+  const url = `${getApiBaseUrl()}/api/trading/positions-insight-stream?${params.toString()}`;
   const source = new EventSource(url);
 
   source.addEventListener("status", (e) => handlers.onStatus?.((e as MessageEvent).data));

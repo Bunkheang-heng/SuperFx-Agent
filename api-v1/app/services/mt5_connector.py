@@ -49,9 +49,17 @@ class MT5Connector:
         self.connected = False
         self.settings = get_settings()
 
+    @property
+    def is_available(self) -> bool:
+        return mt5 is not None
+
     def connect(self, login: str | None, password: str | None, server: str | None) -> tuple[bool, str]:
-        if mt5 is None:
-            raise MT5ConnectorError("MetaTrader5 package is not available on this machine.")
+        if not self.is_available:
+            return (
+                False,
+                "MetaTrader5 is not available on this machine. "
+                "Install MetaTrader 5 and run the API on Windows to connect.",
+            )
 
         resolved_login = login or self.settings.mt5_login
         resolved_password = password or self.settings.mt5_password
@@ -89,7 +97,11 @@ class MT5Connector:
         return True, "Disconnected."
 
     def status(self) -> dict:
-        payload = {"connected": self.connected, "demo_only": self.settings.mt5_demo_only}
+        payload = {
+            "connected": self.connected,
+            "demo_only": self.settings.mt5_demo_only,
+            "mt5_available": self.is_available,
+        }
         if not self.connected or mt5 is None:
             return payload
         try:

@@ -43,7 +43,7 @@ class TradingEngine:
 
     def get_status(self, symbol: str | None = None) -> dict:
         selected_symbol = (symbol or "").strip() or None
-        base = {"connected": self.mt5.connected, "demo_only": self.settings.mt5_demo_only}
+        base = self.mt5.status()
         if not self.mt5.connected:
             return base
 

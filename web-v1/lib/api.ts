@@ -2,9 +2,26 @@ function normalizeBaseUrl(url: string): string {
   return url.trim().replace(/\/+$/, "");
 }
 
-export const API_BASE_URL = normalizeBaseUrl(
+const CONFIGURED_API_BASE_URL = normalizeBaseUrl(
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000",
 );
+
+/** Same-origin proxy path used when the page is HTTPS but the API is HTTP. */
+export const API_PROXY_BASE_URL = "/backend-api";
+
+export function getApiBaseUrl(): string {
+  if (
+    typeof window !== "undefined" &&
+    window.location.protocol === "https:" &&
+    CONFIGURED_API_BASE_URL.startsWith("http://")
+  ) {
+    return API_PROXY_BASE_URL;
+  }
+  return CONFIGURED_API_BASE_URL;
+}
+
+/** @deprecated Use getApiBaseUrl() so HTTPS deployments can proxy to HTTP backends. */
+export const API_BASE_URL = CONFIGURED_API_BASE_URL;
 
 export type ProviderInfo = {
   provider: "openai" | "gemini" | "sealion";
@@ -154,21 +171,21 @@ async function handle<T>(res: Response): Promise<T> {
 
 export const api = {
   async health(): Promise<{ status: string; service: string; timestamp: string }> {
-    return handle(await fetch(`${API_BASE_URL}/api/health`, { cache: "no-store" }));
+    return handle(await fetch(`${getApiBaseUrl()}/api/health`, { cache: "no-store" }));
   },
 
   async providers(): Promise<ProvidersResponse> {
-    return handle(await fetch(`${API_BASE_URL}/api/trading/providers`, { cache: "no-store" }));
+    return handle(await fetch(`${getApiBaseUrl()}/api/trading/providers`, { cache: "no-store" }));
   },
 
   async status(): Promise<ConnectionStatus> {
-    return handle(await fetch(`${API_BASE_URL}/api/trading/status`, { cache: "no-store" }));
+    return handle(await fetch(`${getApiBaseUrl()}/api/trading/status`, { cache: "no-store" }));
   },
 
   async equityCurve(lookbackDays = 30): Promise<EquityCurveResponse> {
     const params = new URLSearchParams({ lookback_days: String(lookbackDays) });
     return handle(
-      await fetch(`${API_BASE_URL}/api/trading/equity-curve?${params.toString()}`, { cache: "no-store" }),
+      await fetch(`${getApiBaseUrl()}/api/trading/equity-curve?${params.toString()}`, { cache: "no-store" }),
     );
   },
 
@@ -200,13 +217,13 @@ export const api = {
     if (dateFrom?.trim()) params.set("date_from", dateFrom.trim());
     if (dateTo?.trim()) params.set("date_to", dateTo.trim());
     return handle(
-      await fetch(`${API_BASE_URL}/api/trading/history?${params.toString()}`, { cache: "no-store" }),
+      await fetch(`${getApiBaseUrl()}/api/trading/history?${params.toString()}`, { cache: "no-store" }),
     );
   },
 
   async connect(payload: { login?: string; password?: string; server?: string }) {
     return handle<{ success: boolean; message: string; data: ConnectionStatus }>(
-      await fetch(`${API_BASE_URL}/api/trading/connect`, {
+      await fetch(`${getApiBaseUrl()}/api/trading/connect`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -216,7 +233,7 @@ export const api = {
 
   async disconnect() {
     return handle<{ success: boolean; message: string; data: ConnectionStatus }>(
-      await fetch(`${API_BASE_URL}/api/trading/disconnect`, { method: "POST" }),
+      await fetch(`${getApiBaseUrl()}/api/trading/disconnect`, { method: "POST" }),
     );
   },
 
@@ -232,7 +249,7 @@ export const api = {
     prop_firm_profile_id?: number;
   }) {
     return handle<RunCycleResponse>(
-      await fetch(`${API_BASE_URL}/api/trading/run-cycle`, {
+      await fetch(`${getApiBaseUrl()}/api/trading/run-cycle`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -242,7 +259,7 @@ export const api = {
 
   async positionsInsight(payload: { provider: string; model?: string; question: string }) {
     return handle<PositionInsightResponse>(
-      await fetch(`${API_BASE_URL}/api/trading/positions-insight`, {
+      await fetch(`${getApiBaseUrl()}/api/trading/positions-insight`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -252,7 +269,7 @@ export const api = {
 
   async allRecent(limit = 25): Promise<AllRecentLogs> {
     return handle(
-      await fetch(`${API_BASE_URL}/api/logs/all-recent?limit=${limit}`, { cache: "no-store" }),
+      await fetch(`${getApiBaseUrl()}/api/logs/all-recent?limit=${limit}`, { cache: "no-store" }),
     );
   },
 };
